@@ -34,8 +34,8 @@ body {
   background-color: var(--bg-color);
   background-image: var(--bg-gradient);
   color: var(--text-main);
-  min-height: 100vh;
-  overflow-x: hidden;
+  height: 100vh;
+  overflow: hidden;
 }
 
 /* Typography */

@@ -71,48 +71,60 @@ const ImpossibleGame = ({ onLose }) => {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden"
       style={{
-        width: '100vw',
-        height: '100vh',
-        background: 'radial-gradient(circle at center, #0f0c29 0%, #302b63 50%, #24243e 100%)'
+        position: 'fixed',
+        inset: 0,
+        zIndex: 100,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'rgba(5, 5, 5, 0.98)',
+        backdropFilter: 'blur(20px)',
+        overflow: 'hidden',
+        padding: '1rem'
       }}
     >
       {/* Background Glows */}
-      <div style={{ position: 'absolute', top: '20%', left: '20%', width: '300px', height: '300px', background: 'rgba(212,175,55,0.1)', filter: 'blur(100px)', borderRadius: '50%' }} />
-      <div style={{ position: 'absolute', bottom: '20%', right: '20%', width: '300px', height: '300px', background: 'rgba(255,77,77,0.1)', filter: 'blur(100px)', borderRadius: '50%' }} />
+      <div style={{ position: 'absolute', top: '20%', left: '20%', width: '300px', height: '300px', background: 'rgba(212,175,55,0.1)', filter: 'blur(100px)', borderRadius: '50%', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: '20%', right: '20%', width: '300px', height: '300px', background: 'rgba(255,77,77,0.1)', filter: 'blur(100px)', borderRadius: '50%', pointerEvents: 'none' }} />
 
       {/* Main Game Card */}
       <motion.div
-        initial={{ y: 30, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
         style={{
-          width: 'min(90vw, 500px)',
-          background: 'rgba(255, 255, 255, 0.05)',
-          backdropFilter: 'blur(25px)',
-          borderRadius: '40px',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          padding: '2.5rem',
+          width: '100%',
+          maxWidth: '450px',
+          background: 'rgba(20, 20, 20, 0.8)',
+          backdropFilter: 'blur(40px)',
+          borderRadius: '30px',
+          border: '1px solid rgba(212, 175, 55, 0.2)',
+          padding: '2rem',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '2rem',
-          boxShadow: '0 40px 100px rgba(0,0,0,0.5)',
-          zIndex: 10
+          gap: '1.5rem',
+          boxShadow: '0 50px 100px rgba(0,0,0,0.9)',
+          position: 'relative',
+          zIndex: 110,
+          maxHeight: '95vh',
+          overflowY: 'auto'
         }}
       >
         <div style={{ textAlign: 'center' }}>
           <h2 style={{
             color: '#fff',
-            fontSize: '2.5rem',
+            fontSize: '1.8rem',
             fontWeight: '900',
-            letterSpacing: '8px',
+            letterSpacing: '6px',
             margin: 0,
-            textShadow: '0 0 20px rgba(255,255,255,0.3)'
+            textShadow: '0 0 20px rgba(255,255,255,0.3)',
+            border: 'none',
+            padding: 0
           }}>
             HEART STRINGS
           </h2>
-          <p style={{ color: '#d4af37', fontSize: '0.8rem', letterSpacing: '3px', marginTop: '10px', opacity: 0.8 }}>
+          <p style={{ color: '#d4af37', fontSize: '0.7rem', letterSpacing: '2px', marginTop: '5px', opacity: 0.8 }}>
             SPELL THE UNBREAKABLE WORD
           </p>
         </div>
@@ -148,9 +160,9 @@ const ImpossibleGame = ({ onLose }) => {
         <div style={{
           position: 'relative',
           width: '100%',
-          height: '300px',
-          background: 'rgba(0,0,0,0.2)',
-          borderRadius: '24px',
+          height: '240px',
+          background: 'rgba(0,0,0,0.3)',
+          borderRadius: '20px',
           border: '1px solid rgba(255,255,255,0.03)',
           overflow: 'hidden'
         }}>
@@ -227,12 +239,261 @@ const ImpossibleGame = ({ onLose }) => {
     </motion.div>
   );
 };
+const DiceGuessGame = ({ onSuccess }) => {
+  const [dieValue, setDieValue] = useState(null);
+  const [phase, setPhase] = useState('idle'); // idle, rolling, covered, result
+  const [guess, setGuess] = useState(null);
+  const [feedback, setFeedback] = useState("");
+  const [showTease, setShowTease] = useState(false);
+  const [hasTeased, setHasTeased] = useState(false);
+
+  const rollDice = () => {
+    setPhase('rolling');
+    const result = Math.floor(Math.random() * 6) + 1;
+    setDieValue(result);
+    setFeedback("Shaking the cup...");
+
+    setTimeout(() => {
+      setPhase('covered');
+      setFeedback("The die is hidden! What's the number?");
+    }, 2000);
+  };
+
+  const checkGuess = (val) => {
+    setGuess(val);
+    setPhase('result');
+
+    if (val === dieValue) {
+      setFeedback("PERFECT! You have a sixth sense! ❤️");
+    } else {
+      setFeedback(`It was a ${dieValue}! So close... try again.`);
+    }
+
+    if (!hasTeased) {
+      setShowTease(true);
+      setHasTeased(true);
+    } else {
+      // Subsequent attempts don't show the tease, just transition/reset automatically
+      if (val === dieValue) {
+        setTimeout(onSuccess, 2000);
+      } else {
+        setTimeout(() => {
+          setPhase('idle');
+          setGuess(null);
+          setFeedback("");
+        }, 2000);
+      }
+    }
+  };
+
+  const handleTeaseConfirm = () => {
+    if (guess === dieValue) {
+      onSuccess();
+    } else {
+      setPhase('idle');
+      setGuess(null);
+      setFeedback("");
+      setShowTease(false);
+    }
+  };
+
+  const DieFace = ({ value }) => {
+    const dots = {
+      1: [[50, 50]],
+      2: [[25, 25], [75, 75]],
+      3: [[25, 25], [50, 50], [75, 75]],
+      4: [[25, 25], [25, 75], [75, 25], [75, 75]],
+      5: [[25, 25], [25, 75], [50, 50], [75, 25], [75, 75]],
+      6: [[25, 25], [25, 50], [25, 75], [75, 25], [75, 50], [75, 75]]
+    };
+
+    return (
+      <div style={{
+        width: '80px',
+        height: '80px',
+        background: '#fff',
+        borderRadius: '12px',
+        position: 'relative',
+        boxShadow: 'inset 0 0 10px rgba(0,0,0,0.2), 0 10px 20px rgba(0,0,0,0.3)'
+      }}>
+        {dots[value]?.map(([x, y], i) => (
+          <div key={i} style={{
+            position: 'absolute',
+            left: `${x}%`,
+            top: `${y}%`,
+            width: '12px',
+            height: '12px',
+            background: '#000',
+            borderRadius: '50%',
+            transform: 'translate(-50%, -50%)'
+          }} />
+        ))}
+      </div>
+    );
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        zIndex: 1000,
+        display: 'grid',
+        placeItems: 'center',
+        background: '#050505',
+        backdropFilter: 'blur(40px)',
+        overflow: 'hidden'
+      }}
+    >
+      <div style={{
+        width: '100%',
+        maxWidth: '400px',
+        textAlign: 'center',
+        background: 'rgba(255,255,255,0.02)',
+        padding: '3rem 2rem',
+        borderRadius: '30px',
+        border: '1px solid rgba(212,175,55,0.1)',
+        boxShadow: '0 50px 100px rgba(0,0,0,0.8)'
+      }}>
+        <h2 style={{ color: '#fff', fontSize: '1.5rem', border: 'none', letterSpacing: '4px', marginBottom: '2rem' }}>DICE OF DESTINY</h2>
+
+        <div style={{ height: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', marginBottom: '2rem' }}>
+          {/* The Cup/Glass */}
+          <motion.div
+            animate={phase === 'rolling' ? { rotate: [0, 10, -10, 10, 0], x: [-5, 5, -5, 5, 0] } : {}}
+            transition={{ repeat: phase === 'rolling' ? Infinity : 0, duration: 0.2 }}
+            style={{
+              width: '120px',
+              height: '140px',
+              border: '2px solid rgba(212,175,55,0.4)',
+              background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(255,255,255,0.05))',
+              borderRadius: '20% 20% 10% 10%',
+              zIndex: 10,
+              position: 'relative',
+              top: phase === 'covered' || phase === 'idle' ? '0' : '-100px',
+              transition: 'top 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.5)'
+            }}
+          >
+            <div style={{ position: 'absolute', top: '10%', left: '10%', width: '80%', height: '10px', background: 'rgba(255,255,255,0.1)', borderRadius: '20px' }} />
+          </motion.div>
+
+          {/* The Die - Visible only when NOT covered, or when revealing */}
+          <motion.div
+            style={{
+              position: 'absolute',
+              top: '40px',
+              zIndex: 5,
+              opacity: (phase === 'covered') ? 0 : 1,
+              transition: 'opacity 0.2s'
+            }}
+            animate={phase === 'rolling' ? { rotate: 360, x: [0, 20, -20, 0] } : { rotate: 0, x: 0 }}
+            transition={{ duration: 0.5, repeat: phase === 'rolling' ? Infinity : 0 }}
+          >
+            {dieValue && <DieFace value={dieValue} />}
+          </motion.div>
+        </div>
+
+        <p style={{ color: phase === 'result' && guess === dieValue ? '#d4af37' : '#999', fontSize: '0.9rem', minHeight: '3rem', marginBottom: '2rem' }}>
+          {feedback}
+        </p>
+
+        {phase === 'idle' && (
+          <button onClick={rollDice} className="btn-elegant" style={{ width: '100%', borderColor: '#d4af37', color: '#d4af37' }}>
+            ROLL DICE
+          </button>
+        )}
+
+        {phase === 'covered' && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+            {[1, 2, 3, 4, 5, 6].map(num => (
+              <motion.button
+                key={num}
+                whileHover={{ scale: 1.1, background: 'rgba(212,175,55,0.2)' }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => checkGuess(num)}
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  color: '#fff',
+                  padding: '1rem',
+                  borderRadius: '10px',
+                  cursor: 'pointer',
+                  fontSize: '1.2rem',
+                  fontWeight: 'bold'
+                }}
+              >
+                {num}
+              </motion.button>
+            ))}
+          </div>
+        )}
+
+        <AnimatePresence>
+          {showTease && (
+            <motion.div
+              initial={{ scale: 0, rotate: -20, x: '-50%', y: '-50%' }}
+              animate={{ scale: 1, rotate: 0, x: '-50%', y: '-50%' }}
+              exit={{ scale: 0, opacity: 0, x: '-50%', y: '-50%' }}
+              style={{
+                position: 'fixed',
+                top: '50%',
+                left: '50%',
+                background: 'rgba(255, 77, 77, 0.98)',
+                color: '#fff',
+                padding: '2rem',
+                borderRadius: '24px',
+                zIndex: 2000,
+                boxShadow: '0 0 100px rgba(255,10,10,0.6)',
+                width: 'min(90vw, 320px)',
+                textAlign: 'center',
+                border: '2px solid rgba(255,255,255,0.2)'
+              }}
+            >
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>😈</div>
+              <h3 style={{ border: 'none', color: '#fff', margin: 0, fontSize: '1.4rem', fontWeight: 'bold' }}>GOTCHA!</h3>
+              <p style={{ color: '#fff', marginTop: '1rem', fontStyle: 'normal', fontSize: '1.1rem', lineHeight: '1.4' }}>
+                You failed the previous game, so you technically already lost! 😏
+              </p>
+
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleTeaseConfirm}
+                style={{
+                  marginTop: '2rem',
+                  background: '#fff',
+                  color: '#ff4d4d',
+                  border: 'none',
+                  padding: '1rem 2rem',
+                  borderRadius: '12px',
+                  fontWeight: 'bold',
+                  fontSize: '1rem',
+                  cursor: 'pointer',
+                  width: '100%',
+                  boxShadow: '0 10px 20px rgba(0,0,0,0.2)'
+                }}
+              >
+                OK, CONTINUE 😏
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </motion.div>
+  );
+};
 
 const Landing = ({ onEnter }) => {
   const [noClicks, setNoClicks] = useState(0);
   const [trickyStep, setTrickyStep] = useState(0);
   const [isHoveringNo, setIsHoveringNo] = useState(false);
-  const [gameState, setGameState] = useState('landing'); // landing, playing, lost, wife-msg, tricky
+  const [gameState, setGameState] = useState('landing'); // landing, playing, lost, wife-msg, tricky, guessing
   const [mainText, setMainText] = useState("Will you be my Valentine?");
 
   const [noPos, setNoPos] = useState({ x: 0, y: 0 });
@@ -303,109 +564,169 @@ const Landing = ({ onEnter }) => {
       exit={{ opacity: 0, transition: { duration: 1.5 } }}
       className="full-screen"
       style={{
-        background: 'radial-gradient(circle at center, #1a1a24 0%, #000 100%)',
+        background: '#050505',
         textAlign: 'center',
         position: 'relative',
-        zIndex: 1
+        zIndex: 1,
+        overflow: 'hidden',
+        height: '100vh', // Ensure the main container takes full viewport height
       }}
     >
-      <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: '800px', margin: '0 auto' }}>
+      {/* Liquid Mesh Background for Landing */}
+      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+        <motion.div
+          animate={{ scale: [1, 1.2, 1], x: [0, 50, 0], y: [0, 30, 0] }}
+          transition={{ duration: 15, repeat: Infinity }}
+          style={{ position: 'absolute', top: '-15%', left: '-5%', width: '800px', height: '800px', background: 'radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%)', filter: 'blur(120px)' }}
+        />
+        <motion.div
+          animate={{ scale: [1.2, 1, 1.2], x: [0, -50, 0], y: [0, -30, 0] }}
+          transition={{ duration: 18, repeat: Infinity }}
+          style={{ position: 'absolute', bottom: '-15%', right: '-5%', width: '800px', height: '800px', background: 'radial-gradient(circle, rgba(255,77,77,0.05) 0%, transparent 70%)', filter: 'blur(120px)' }}
+        />
+      </div>
+
+      <div style={{
+        position: 'relative',
+        zIndex: 10,
+        width: '100%',
+        maxWidth: '900px',
+        margin: '0 auto',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+        padding: '0 2rem',
+        transition: 'all 0.8s ease',
+        display: (gameState === 'playing' || gameState === 'guessing' || gameState === 'lost') ? 'none' : 'flex',
+        opacity: (gameState === 'playing' || gameState === 'guessing' || gameState === 'lost') ? 0 : 1,
+        pointerEvents: (gameState === 'playing' || gameState === 'guessing' || gameState === 'lost') ? 'none' : 'auto'
+      }}>
+
+        {/* Subtle Editorial Label */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{ marginBottom: '2rem' }}
+        >
+          <p style={{ color: '#d4af37', letterSpacing: '12px', fontSize: '0.7rem', textTransform: 'uppercase', opacity: 0.6 }}>The Perpetual Question</p>
+        </motion.div>
+
         <motion.div
           key={gameState}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          style={{ width: '100%', padding: '0 2rem' }}
+          initial={{ opacity: 0, scale: 0.9, rotateY: 20 }}
+          animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
+          style={{
+            width: '100%',
+            padding: '4rem 2rem',
+            background: 'rgba(255, 255, 255, 0.02)',
+            border: '1px solid rgba(212, 175, 55, 0.1)',
+            borderRadius: '4px',
+            boxShadow: '0 50px 100px rgba(0,0,0,0.8), inset 0 0 40px rgba(212,175,55,0.05)',
+            backdropFilter: 'blur(40px)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
         >
+          {/* Holographic Edge Glow */}
+          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '1px', background: 'linear-gradient(90deg, transparent, #d4af37, transparent)', opacity: 0.3 }} />
+
           {gameState === 'wife-msg' ? (
-            <div style={{ marginBottom: '4rem' }}>
+            <div style={{ padding: '0 1rem' }}>
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ type: 'spring', damping: 10, stiffness: 100, delay: 0.2 }}
                 style={{ marginBottom: '2rem' }}
               >
-                <Heart size={80} fill="#d4af37" color="#d4af37" style={{ filter: 'drop-shadow(0 0 20px rgba(212,175,55,0.5))' }} />
+                <Heart size={60} fill="#ff4d4d" color="#ff4d4d" style={{ filter: 'drop-shadow(0 0 30px #ff4d4d)' }} />
               </motion.div>
 
               <h1 style={{
-                fontSize: '3.5rem',
-                fontWeight: '900',
+                fontSize: 'clamp(2.5rem, 8vw, 4rem)',
+                fontWeight: '200',
                 color: '#fff',
                 margin: '0 0 1.5rem 0',
-                letterSpacing: '2px',
-                lineHeight: '1.1'
+                fontFamily: 'var(--font-serif)',
+                fontStyle: 'italic'
               }}>
                 To My <span style={{ color: '#d4af37' }}>Forever</span> Wife
               </h1>
 
               <p style={{
-                fontSize: '1.4rem',
-                color: 'rgba(255,255,255,0.8)',
-                maxWidth: '600px',
+                fontSize: '1.2rem',
+                color: '#999',
+                maxWidth: '500px',
                 margin: '0 auto',
-                lineHeight: '1.6',
-                fontStyle: 'italic',
-                letterSpacing: '0.5px'
+                lineHeight: '1.8',
+                letterSpacing: '1px'
               }}>
-                "You have only one option 💍. I am gonna remove the NO game 😏"
+                "You don't have the option 'No' 😈 so the only option is to click YES 😏"
               </p>
             </div>
           ) : (
             <h1 style={{
-              fontSize: '4rem',
-              lineHeight: '1.2',
-              marginBottom: '3.5rem',
-              minHeight: '20vh',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              fontSize: 'clamp(2.5rem, 10vw, 5rem)',
+              lineHeight: '1',
               color: '#fff',
-              transition: 'all 0.5s ease'
+              fontFamily: 'var(--font-serif)',
+              fontStyle: 'italic',
+              margin: 0,
+              textShadow: '0 0 40px rgba(255,255,255,0.1)'
             }}>
               {mainText}
             </h1>
           )}
+
+          <div style={{ display: 'flex', gap: '2rem', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', marginTop: '4rem' }}>
+            <motion.button
+              whileHover={{ scale: 1.05, background: 'rgba(212, 175, 55, 0.2)' }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleYes}
+              style={{
+                fontSize: '0.8rem',
+                padding: '1.2rem 4rem',
+                border: '1px solid #d4af37',
+                background: 'rgba(212, 175, 55, 0.1)',
+                color: '#d4af37',
+                letterSpacing: '5px',
+                cursor: 'pointer',
+                borderRadius: '2px',
+                transition: 'all 0.4s'
+              }}
+            >
+              {gameState === 'wife-msg' ? "YES! 💍" : "YES ❤️"}
+            </motion.button>
+
+            <AnimatePresence>
+              {noClicks <= 3 && gameState === 'landing' && (
+                <motion.button
+                  initial={{ opacity: 1 }}
+                  exit={{ opacity: 0, scale: 0 }}
+                  whileHover={{ x: noClicks > 0 ? [0, -10, 10, -10, 10, 0] : 0 }}
+                  onClick={handleNo}
+                  style={{
+                    fontSize: '0.8rem',
+                    padding: '1.2rem 4rem',
+                    border: '1px solid #444',
+                    background: 'transparent',
+                    color: '#666',
+                    letterSpacing: '5px',
+                    cursor: 'pointer',
+                    borderRadius: '2px'
+                  }}
+                >
+                  {noClicks === 3 ? "START GAME" : "NO"}
+                </motion.button>
+              )}
+            </AnimatePresence>
+          </div>
         </motion.div>
 
-        <div style={{ display: 'flex', gap: '2rem', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
-          <motion.button
-            whileHover={{ scale: 1.15 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleYes}
-            className="btn-elegant"
-            style={{
-              fontSize: '1.4rem',
-              padding: '1.2rem 4rem',
-              borderColor: '#d4af37',
-              background: 'rgba(212, 175, 55, 0.15)',
-              boxShadow: '0 0 20px rgba(212,175,55,0.2)'
-            }}
-          >
-            {gameState === 'wife-msg' ? "YES! 💍" : "YES ❤️"}
-          </motion.button>
-
-          <AnimatePresence>
-            {/* The Original No Button (Hides after game start) */}
-            {noClicks <= 3 && window.innerWidth > 0 && gameState === 'landing' && (
-              <motion.button
-                initial={{ opacity: 1, width: 'auto' }}
-                exit={{ opacity: 0, width: 0, scale: 0, padding: 0, margin: 0 }}
-                whileHover={{ scale: 1.1, x: noClicks > 0 ? [0, -10, 10, -10, 10, 0] : 0 }}
-                onClick={handleNo}
-                className="btn-elegant"
-                style={{
-                  fontSize: '1rem',
-                  padding: '0.8rem 2rem',
-                  borderColor: '#a0a0a0',
-                  color: '#a0a0a0',
-                  opacity: 0.7
-                }}
-              >
-                {noClicks === 3 ? "Start Game" : "NO"}
-              </motion.button>
-            )}
-          </AnimatePresence>
+        {/* Collection Footer Label */}
+        <div style={{ position: 'absolute', bottom: '2rem', width: '100%', opacity: 0.3, borderTop: '1px solid rgba(255,255,255,0.1)', padding: '1rem 0' }}>
+          <p style={{ color: '#fff', fontSize: '0.6rem', letterSpacing: '8px' }}>PRIVATE_COLLECTION / VAULT_V1</p>
         </div>
       </div>
 
@@ -433,15 +754,28 @@ const Landing = ({ onEnter }) => {
               <p style={{ fontSize: '1.2rem', marginBottom: '2rem', color: '#ccc' }}>
                 Strategic override detected. You were never meant to win this... 😏
               </p>
-              <button
-                onClick={handleAcceptLoss}
-                className="btn-elegant"
-                style={{ width: '100%', borderColor: '#d4af37', color: '#d4af37' }}
-              >
-                Accept Fate 💍
-              </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <button
+                  onClick={() => setGameState('guessing')}
+                  className="btn-elegant"
+                  style={{ width: '100%', borderColor: '#d4af37', color: '#d4af37', background: 'rgba(212,175,55,0.1)' }}
+                >
+                  Try Another Game? 🎮
+                </button>
+                <button
+                  onClick={handleAcceptLoss}
+                  className="btn-elegant"
+                  style={{ width: '100%', borderColor: '#444', color: '#fff', background: 'rgba(255,255,255,0.05)', fontSize: '0.8rem' }}
+                >
+                  Accept Fate 💍
+                </button>
+              </div>
             </motion.div>
           </motion.div>
+        )}
+
+        {gameState === 'guessing' && (
+          <DiceGuessGame onSuccess={handleAcceptLoss} />
         )}
 
         {gameState === 'tricky' && (
@@ -809,32 +1143,30 @@ const Gallery = () => {
   const [isRevealed, setIsRevealed] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   const selectedImage = images.find(i => i.id === selectedId);
-  const containerRef = useRef(null);
-
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"]
-  });
+  const [activeIndex, setActiveIndex] = useState(0);
+  const pathLength = useSpring((activeIndex + 1) / images.length, { stiffness: 100, damping: 30 });
 
   const [showValentine, setShowValentine] = useState(false);
-  const pathLength = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
 
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    if (latest > 0.98 && !showValentine && isRevealed) {
-      setShowValentine(true);
+  useEffect(() => {
+    if (isRevealed && activeIndex === images.length - 1) {
+      // Optionally trigger Valentine's Day message after viewing the last image
+      // For now, let's keep it simple and not auto-trigger based on activeIndex
+      // setShowValentine(true);
     }
   });
 
   return (
     <motion.div
-      ref={containerRef}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       style={{
-        minHeight: '200vh',
+        height: '100vh',
         background: '#050505',
         position: 'relative',
-        overflowX: 'hidden'
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column'
       }}
     >
       {/* Central Thread */}
@@ -868,33 +1200,82 @@ const Gallery = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 2, filter: 'blur(100px)' }}
-            className="full-screen"
-            style={{ height: '40vh' }}
+            style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
           >
             <motion.div animate={{ rotate: [0, 5, -5, 0] }} transition={{ duration: 4, repeat: Infinity }}>
               <Gift size={120} color="#d4af37" strokeWidth={1} style={{ filter: 'drop-shadow(0 0 30px rgba(212,175,55,0.4))' }} />
             </motion.div>
+            <PullCord onPull={() => setIsRevealed(true)} isRevealed={isRevealed} />
             <p style={{ color: '#333', letterSpacing: '8px', marginTop: '2rem', fontSize: '0.8rem' }}>THE JOURNEY BEGINS HERE</p>
           </motion.div>
         ) : (
-          <div style={{ position: 'relative', zIndex: 2, padding: '10vh 0' }}>
-            {images.map((img, index) => (
-              <TimelineItem
-                key={img.id}
-                img={img}
-                index={index}
-                onClick={() => setSelectedId(img.id)}
+          <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {/* The Central Thread (Decorative) */}
+            <div style={{ position: 'absolute', left: '50%', top: '0', bottom: '0', width: '2px', background: 'rgba(212,175,55,0.1)', transform: 'translateX(-50%)', zIndex: 1 }}>
+              <motion.div
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  background: 'linear-gradient(to bottom, transparent, #d4af37, #ff4d4d, #d4af37, transparent)',
+                  scaleY: pathLength,
+                  transformOrigin: 'top'
+                }}
               />
-            ))}
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              style={{ textAlign: 'center', padding: '20vh 0' }}
-            >
-              <Heart size={40} color="#ff4d4d" style={{ filter: 'drop-shadow(0 0 10px #ff4d4d)' }} />
-              <h2 style={{ border: 'none', color: '#fff', fontSize: '1rem', letterSpacing: '10px', marginTop: '2rem' }}>TO INFINITY</h2>
-            </motion.div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={images[activeIndex].id}
+                initial={{ opacity: 0, scale: 0.8, x: 100 }}
+                animate={{ opacity: 1, scale: 1, x: 0 }}
+                exit={{ opacity: 0, scale: 0.8, x: -100 }}
+                transition={{ duration: 0.5 }}
+                style={{ zIndex: 10, textAlign: 'center', width: '90%', maxWidth: '800px' }}
+              >
+                <div
+                  onClick={() => setSelectedId(images[activeIndex].id)}
+                  style={{ cursor: 'pointer', background: '#111', padding: '15px', borderRadius: '30px', overflow: 'hidden', boxShadow: '0 30px 60px rgba(0,0,0,0.8)' }}
+                >
+                  <img src={images[activeIndex].url} style={{ width: '100%', height: '50vh', objectFit: 'cover', borderRadius: '20px' }} />
+                  <div style={{ padding: '2rem' }}>
+                    <p style={{ color: '#d4af37', letterSpacing: '5px', fontSize: '0.7rem', marginBottom: '1rem' }}>{images[activeIndex].date}</p>
+                    <h3 style={{ color: '#fff', fontSize: '2.5rem', margin: 0, border: 'none' }}>{images[activeIndex].title}</h3>
+                    <p style={{ color: '#666', marginTop: '1rem' }}>{images[activeIndex].desc}</p>
+                  </div>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Navigation Controls */}
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 5vw', zIndex: 20, pointerEvents: 'none' }}>
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setActiveIndex(prev => Math.max(0, prev - 1))}
+                style={{ pointerEvents: 'auto', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', width: '60px', height: '60px', borderRadius: '50%', cursor: 'pointer', display: activeIndex === 0 ? 'none' : 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <ArrowLeft size={24} />
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => {
+                  if (activeIndex < images.length - 1) {
+                    setActiveIndex(prev => prev + 1);
+                  } else {
+                    setShowValentine(true);
+                  }
+                }}
+                style={{ pointerEvents: 'auto', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', width: '60px', height: '60px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <ArrowRight size={24} />
+              </motion.button>
+            </div>
+
+            <div style={{ position: 'absolute', bottom: '4rem', color: 'rgba(255,255,255,0.2)', fontSize: '0.7rem', letterSpacing: '5px' }}>
+              {activeIndex + 1} / {images.length}
+            </div>
           </div>
         )}
       </AnimatePresence>
