@@ -610,7 +610,6 @@ const Landing = ({ onEnter }) => {
           animate={{ opacity: 1, y: 0 }}
           style={{ marginBottom: '2rem' }}
         >
-          <p style={{ color: '#d4af37', letterSpacing: '12px', fontSize: '0.7rem', textTransform: 'uppercase', opacity: 0.6 }}>The Perpetual Question</p>
         </motion.div>
 
         <motion.div
@@ -726,7 +725,7 @@ const Landing = ({ onEnter }) => {
 
         {/* Collection Footer Label */}
         <div style={{ position: 'absolute', bottom: '2rem', width: '100%', opacity: 0.3, borderTop: '1px solid rgba(255,255,255,0.1)', padding: '1rem 0' }}>
-          <p style={{ color: '#fff', fontSize: '0.6rem', letterSpacing: '8px' }}>PRIVATE_COLLECTION / VAULT_V1</p>
+
         </div>
       </div>
 
