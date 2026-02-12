@@ -1,6 +1,6 @@
-/* ... existing imports ... */
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValueEvent } from 'framer-motion';
+import { Analytics } from "@vercel/analytics/react";
 import {
   Sparkles, X, ChevronRight, Music, HeartHandshake, ArrowLeft, ArrowRight,
   Navigation, Cloud, Heart, Zap, Car, AlertTriangle, CircleDot, Wrench, Settings,
@@ -174,8 +174,8 @@ const ImpossibleGame = ({ onLose }) => {
               whileTap={{ scale: 0.8 }}
               style={{
                 position: 'absolute',
-                left: `${l.x}%`,
-                top: `${l.y}%`,
+                left: `${l.x}% `,
+                top: `${l.y}% `,
                 transform: 'translate(-50%, -50%)',
                 background: 'none',
                 border: 'none',
@@ -266,7 +266,7 @@ const DiceGuessGame = ({ onSuccess }) => {
     if (val === dieValue) {
       setFeedback("PERFECT! You have a sixth sense! ❤️");
     } else {
-      setFeedback(`It was a ${dieValue}! So close... try again.`);
+      setFeedback(`It was a ${dieValue} !So close... try again.`);
     }
 
     if (!hasTeased) {
@@ -319,8 +319,8 @@ const DiceGuessGame = ({ onSuccess }) => {
         {dots[value]?.map(([x, y], i) => (
           <div key={i} style={{
             position: 'absolute',
-            left: `${x}%`,
-            top: `${y}%`,
+            left: `${x}% `,
+            top: `${y}% `,
             width: '12px',
             height: '12px',
             background: '#000',
@@ -903,7 +903,7 @@ const Landing = ({ onEnter }) => {
           >
             {[...Array(15)].map((_, i) => (
               <motion.div
-                key={`heart-${i}`}
+                key={`heart - ${i} `}
                 initial={{
                   x: Math.random() * 100 + '%',
                   y: '110%',
@@ -1289,7 +1289,7 @@ const Gallery = () => {
             onClick={() => setSelectedId(null)}
             style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.95)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '5vw', backdropFilter: 'blur(10px)' }}
           >
-            <motion.div layoutId={`card-${selectedId}`} style={{ width: '100%', maxWidth: '1000px', textAlign: 'center' }}>
+            <motion.div layoutId={`card - ${selectedId} `} style={{ width: '100%', maxWidth: '1000px', textAlign: 'center' }}>
               <img src={selectedImage.url} style={{ width: '100%', maxHeight: '60vh', objectFit: 'contain', boxShadow: '0 0 50px rgba(0,0,0,1)', borderRadius: '24px' }} />
               <p style={{ color: '#d4af37', fontSize: '0.8rem', letterSpacing: '5px', marginTop: '2rem' }}>{selectedImage.date}</p>
               <h2 style={{ color: '#fff', fontSize: '3rem', border: 'none', fontFamily: 'var(--font-serif)', fontStyle: 'italic', margin: '0.5rem 0' }}>{selectedImage.title}</h2>
@@ -1381,7 +1381,7 @@ const Gallery = () => {
                   style={{
                     position: 'absolute',
                     bottom: -50,
-                    left: `${Math.random() * 100}%`,
+                    left: `${Math.random() * 100}% `,
                     color: i % 2 === 0 ? '#ff4d4d' : '#d4af37',
                     opacity: 0.2
                   }}
@@ -1602,6 +1602,7 @@ const App = () => {
           <Gallery key="gallery" />
         )}
       </AnimatePresence>
+      <Analytics />
     </div>
   );
 };
