@@ -287,14 +287,8 @@ const DiceGuessGame = ({ onSuccess }) => {
   };
 
   const handleTeaseConfirm = () => {
-    if (guess === dieValue) {
-      onSuccess();
-    } else {
-      setPhase('idle');
-      setGuess(null);
-      setFeedback("");
-      setShowTease(false);
-    }
+    // Always succeed after the tease, regardless of the guess
+    onSuccess();
   };
 
   const DieFace = ({ value }) => {
