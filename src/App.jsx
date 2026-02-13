@@ -7,6 +7,7 @@ import {
   Type, Keyboard, Eraser, ShoppingBasket, Mail, Quote, PenTool, Lock, ShieldAlert, Command, Lightbulb, Gift
 } from 'lucide-react';
 import './index.css';
+import Background3D from './components/Background3D';
 
 /* 
   -------------------------------------------------------------
@@ -412,7 +413,7 @@ const DiceGuessGame = ({ onSuccess }) => {
                 whileTap={{ scale: 0.9 }}
                 onClick={() => checkGuess(num)}
                 style={{
-                  background: 'rgba(255,255,255,0.05)',
+                  background: 'rgba(0,0,0,0.6)',
                   border: '1px solid rgba(255,255,255,0.1)',
                   color: '#fff',
                   padding: '1rem',
@@ -558,7 +559,7 @@ const Landing = ({ onEnter }) => {
       exit={{ opacity: 0, transition: { duration: 1.5 } }}
       className="full-screen"
       style={{
-        background: '#050505',
+        background: 'transparent',
         textAlign: 'center',
         position: 'relative',
         zIndex: 1,
@@ -566,19 +567,7 @@ const Landing = ({ onEnter }) => {
         height: '100vh', // Ensure the main container takes full viewport height
       }}
     >
-      {/* Liquid Mesh Background for Landing */}
-      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
-        <motion.div
-          animate={{ scale: [1, 1.2, 1], x: [0, 50, 0], y: [0, 30, 0] }}
-          transition={{ duration: 15, repeat: Infinity }}
-          style={{ position: 'absolute', top: '-15%', left: '-5%', width: '800px', height: '800px', background: 'radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%)', filter: 'blur(120px)' }}
-        />
-        <motion.div
-          animate={{ scale: [1.2, 1, 1.2], x: [0, -50, 0], y: [0, -30, 0] }}
-          transition={{ duration: 18, repeat: Infinity }}
-          style={{ position: 'absolute', bottom: '-15%', right: '-5%', width: '800px', height: '800px', background: 'radial-gradient(circle, rgba(255,77,77,0.05) 0%, transparent 70%)', filter: 'blur(120px)' }}
-        />
-      </div>
+      {/* Liquid Mesh Background Removed to show 3D Background */}
 
       <div style={{
         position: 'relative',
@@ -586,7 +575,6 @@ const Landing = ({ onEnter }) => {
         width: '100%',
         maxWidth: '900px',
         margin: '0 auto',
-        display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
@@ -933,7 +921,7 @@ const Letter = ({ onNext }) => {
       exit={{ opacity: 0, y: -50, filter: 'blur(10px)' }}
       className="full-screen"
       style={{
-        background: 'radial-gradient(circle at center, #0a0a0f 0%, #000 100%)',
+        background: 'radial-gradient(circle at center, rgba(10,10,15,0.8) 0%, rgba(0,0,0,0.9) 100%)',
         padding: '2rem',
         display: 'flex',
         alignItems: 'center',
@@ -1136,47 +1124,28 @@ const Gallery = () => {
   const [isRevealed, setIsRevealed] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   const selectedImage = images.find(i => i.id === selectedId);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const pathLength = useSpring((activeIndex + 1) / images.length, { stiffness: 100, damping: 30 });
-
   const [showValentine, setShowValentine] = useState(false);
 
-  useEffect(() => {
-    if (isRevealed && activeIndex === images.length - 1) {
-      // Optionally trigger Valentine's Day message after viewing the last image
-      // For now, let's keep it simple and not auto-trigger based on activeIndex
-      // setShowValentine(true);
-    }
-  });
+  // Trigger valentine popup when reaching bottom (simulate by checking last item or manually)
+  // For scrolling gallery, we can add a "Continue" button at the bottom
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       style={{
+        position: 'fixed',
+        inset: 0,
+        width: '100%',
         height: '100vh',
-        background: '#050505',
-        position: 'relative',
-        overflow: 'hidden',
+        background: 'transparent',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        overflowY: isRevealed ? 'scroll' : 'hidden',
+        overflowX: 'hidden',
+        zIndex: 5
       }}
     >
-      {/* Central Thread */}
-      {isRevealed && (
-        <div style={{ position: 'absolute', left: '50%', top: '300px', bottom: '100px', width: '2px', background: 'rgba(212,175,55,0.1)', transform: 'translateX(-50%)', zIndex: 1 }}>
-          <motion.div
-            style={{
-              width: '100%',
-              height: '100%',
-              background: 'linear-gradient(to bottom, transparent, #d4af37, #ff4d4d, #d4af37, transparent)',
-              scaleY: pathLength,
-              transformOrigin: 'top'
-            }}
-          />
-        </div>
-      )}
-
       <header style={{ padding: '8rem 0 4rem 0', textAlign: 'center', zIndex: 10, position: 'relative' }}>
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 0.5 }} style={{ color: '#d4af37', letterSpacing: '10px', fontSize: '0.6rem', marginBottom: '1rem' }}>SINCE.THE.START</motion.p>
         <h1 style={{ fontSize: 'clamp(3rem, 15vw, 8rem)', textTransform: 'none', color: '#fff', fontFamily: 'var(--font-serif)', fontStyle: 'italic', lineHeight: 0.8, letterSpacing: '-4px' }}>
@@ -1184,7 +1153,24 @@ const Gallery = () => {
         </h1>
       </header>
 
-      <PullCord onPull={() => setIsRevealed(true)} isRevealed={isRevealed} />
+      {/* Central Thread Line */}
+      {isRevealed && (
+        <motion.div
+          initial={{ height: 0 }}
+          animate={{ height: '100%' }}
+          transition={{ duration: 2, ease: "easeOut" }}
+          style={{
+            position: 'absolute',
+            left: '50%',
+            top: '300px',
+            bottom: 0,
+            width: '1px',
+            background: 'linear-gradient(to bottom, transparent, #d4af37, #d4af37, transparent)',
+            transform: 'translateX(-50%)',
+            zIndex: 1
+          }}
+        />
+      )}
 
       <AnimatePresence mode="wait">
         {!isRevealed ? (
@@ -1193,7 +1179,7 @@ const Gallery = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 2, filter: 'blur(100px)' }}
-            style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
+            style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}
           >
             <motion.div animate={{ rotate: [0, 5, -5, 0] }} transition={{ duration: 4, repeat: Infinity }}>
               <Gift size={120} color="#d4af37" strokeWidth={1} style={{ filter: 'drop-shadow(0 0 30px rgba(212,175,55,0.4))' }} />
@@ -1202,73 +1188,89 @@ const Gallery = () => {
             <p style={{ color: '#333', letterSpacing: '8px', marginTop: '2rem', fontSize: '0.8rem' }}>THE JOURNEY BEGINS HERE</p>
           </motion.div>
         ) : (
-          <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            {/* The Central Thread (Decorative) */}
-            <div style={{ position: 'absolute', left: '50%', top: '0', bottom: '0', width: '2px', background: 'rgba(212,175,55,0.1)', transform: 'translateX(-50%)', zIndex: 1 }}>
-              <motion.div
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  background: 'linear-gradient(to bottom, transparent, #d4af37, #ff4d4d, #d4af37, transparent)',
-                  scaleY: pathLength,
-                  transformOrigin: 'top'
-                }}
+          <div style={{ flex: 1, position: 'relative', paddingBottom: '10rem' }}>
+
+            {/* Timeline Items */}
+            {images.map((img, index) => (
+              <TimelineItem
+                key={img.id}
+                img={img}
+                index={index}
+                onClick={() => setSelectedId(img.id)}
               />
-            </div>
+            ))}
 
-            <AnimatePresence mode="wait">
+            {/* Final Valentine Message Section */}
+            <div style={{
+              minHeight: '100vh',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'relative',
+              marginTop: '10vh'
+            }}>
               <motion.div
-                key={images[activeIndex].id}
-                initial={{ opacity: 0, scale: 0.8, x: 100 }}
-                animate={{ opacity: 1, scale: 1, x: 0 }}
-                exit={{ opacity: 0, scale: 0.8, x: -100 }}
-                transition={{ duration: 0.5 }}
-                style={{ zIndex: 10, textAlign: 'center', width: '90%', maxWidth: '800px' }}
+                initial={{ scale: 0, rotate: -20 }}
+                whileInView={{ scale: 1, rotate: 0 }}
+                viewport={{ margin: "-20%" }}
+                transition={{ type: 'spring', stiffness: 200, damping: 15 }}
               >
-                <div
-                  onClick={() => setSelectedId(images[activeIndex].id)}
-                  style={{ cursor: 'pointer', background: '#111', padding: '15px', borderRadius: '30px', overflow: 'hidden', boxShadow: '0 30px 60px rgba(0,0,0,0.8)' }}
-                >
-                  <img src={images[activeIndex].url} style={{ width: '100%', height: '50vh', objectFit: 'cover', borderRadius: '20px' }} />
-                  <div style={{ padding: '2rem' }}>
-                    <p style={{ color: '#d4af37', letterSpacing: '5px', fontSize: '0.7rem', marginBottom: '1rem' }}>{images[activeIndex].date}</p>
-                    <h3 style={{ color: '#fff', fontSize: '2.5rem', margin: 0, border: 'none' }}>{images[activeIndex].title}</h3>
-                    <p style={{ color: '#666', marginTop: '1rem' }}>{images[activeIndex].desc}</p>
-                  </div>
-                </div>
+                <Heart size={100} fill="#ff4d4d" color="#ff4d4d" style={{ filter: 'drop-shadow(0 0 40px #ff4d4d)' }} />
               </motion.div>
-            </AnimatePresence>
 
-            {/* Navigation Controls */}
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 5vw', zIndex: 20, pointerEvents: 'none' }}>
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setActiveIndex(prev => Math.max(0, prev - 1))}
-                style={{ pointerEvents: 'auto', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', width: '60px', height: '60px', borderRadius: '50%', cursor: 'pointer', display: activeIndex === 0 ? 'none' : 'flex', alignItems: 'center', justifyContent: 'center' }}
-              >
-                <ArrowLeft size={24} />
-              </motion.button>
-
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => {
-                  if (activeIndex < images.length - 1) {
-                    setActiveIndex(prev => prev + 1);
-                  } else {
-                    setShowValentine(true);
-                  }
+              <motion.h1
+                initial={{ y: 20, opacity: 0 }}
+                whileInView={{ y: 0, opacity: 1 }}
+                viewport={{ margin: "-20%" }}
+                transition={{ delay: 0.3 }}
+                style={{
+                  fontSize: 'clamp(2.5rem, 8vw, 5rem)',
+                  color: '#fff',
+                  fontFamily: 'var(--font-serif)',
+                  fontStyle: 'italic',
+                  textTransform: 'none',
+                  margin: '2rem 0',
+                  lineHeight: 1.1,
+                  textAlign: 'center'
                 }}
-                style={{ pointerEvents: 'auto', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', width: '60px', height: '60px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               >
-                <ArrowRight size={24} />
-              </motion.button>
+                Happy Valentine's Day<br />
+                <span style={{ color: '#d4af37' }}>My Love</span>
+              </motion.h1>
+
+              {/* Floating Hearts Background for this section */}
+              <div style={{ position: 'absolute', inset: 0, zIndex: -1, overflow: 'hidden', pointerEvents: 'none' }}>
+                {[...Array(20)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    animate={{
+                      y: [-20, -1000], // Adjust distance for section height
+                      x: [0, Math.sin(i) * 100],
+                      opacity: [0, 1, 0],
+                      scale: [0.5, 1.5, 0.5]
+                    }}
+                    transition={{
+                      duration: 5 + Math.random() * 5,
+                      repeat: Infinity,
+                      delay: i * 0.2
+                    }}
+                    style={{
+                      position: 'absolute',
+                      bottom: -50,
+                      left: `${Math.random() * 100}% `,
+                      color: i % 2 === 0 ? '#ff4d4d' : '#d4af37',
+                      opacity: 0.2
+                    }}
+                  >
+                    <Heart fill="currentColor" size={20 + Math.random() * 30} />
+                  </motion.div>
+                ))}
+              </div>
             </div>
 
-            <div style={{ position: 'absolute', bottom: '4rem', color: 'rgba(255,255,255,0.2)', fontSize: '0.7rem', letterSpacing: '5px' }}>
-              {activeIndex + 1} / {images.length}
-            </div>
+
+
           </div>
         )}
       </AnimatePresence>
@@ -1472,7 +1474,7 @@ const AuthPopup = ({ onVerified }) => {
       exit={{ opacity: 0 }}
       className="full-screen"
       style={{
-        background: 'rgba(0,0,0,0.95)',
+        background: 'rgba(0,0,0,0.8)',
         zIndex: 1000,
         display: 'flex',
         alignItems: 'center',
@@ -1581,6 +1583,7 @@ const App = () => {
 
   return (
     <div className="app-container">
+      <Background3D stage={stage} />
       <AnimatePresence mode="wait">
         {stage === 'landing' && (
           <Landing key="landing" onEnter={() => setStage('letter')} />

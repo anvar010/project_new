@@ -36,6 +36,7 @@ body {
   color: var(--text-main);
   height: 100vh;
   overflow: hidden;
+  text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
 }
 
 /* Typography */
@@ -133,7 +134,7 @@ p {
 
 /* Cards & Glassmorphism */
 .glass-panel {
-  background: var(--card-bg);
+  background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
@@ -155,7 +156,7 @@ p {
 }
 
 .polaroid {
-  background: #fff;
+  background: #1a1a1a;
   padding: 10px 10px 40px 10px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -192,7 +193,7 @@ p {
   font-family: 'Courier New', Courier, monospace;
   /* Typewriter feel */
   font-size: 0.9rem;
-  color: #333;
+  color: #ccc;
   padding: 10px;
   height: 40px;
   display: flex;
@@ -254,7 +255,7 @@ p {
   top: 2rem;
   right: 2rem;
   color: #fff;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.6);
   border: none;
   font-size: 2rem;
   cursor: pointer;
